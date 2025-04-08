@@ -1,0 +1,111 @@
+﻿@page "/mygame"
+
+@using MyApp.Data
+@using System.Timers
+
+@inject IJSRuntime JSRuntime;
+
+@inject GameLogic gameLogic;
+
+
+<h3>MyGame</h3>
+
+<button class="btn-secondary m-2" @onclick="StartGame">Start Game</button>
+
+<button class="btn-secondary m-2" @onclick="AddBacteria">Bacterial replication</button>
+
+<button class="btn-secondary m-2" @onclick="Shot">Destruction of bacteria</button>
+
+<button class="btn-secondary m-2" @onclick="WashHands">Wash your hands</button>
+
+<button class="btn-secondary m-2" @onclick="DirtyHands">Dirty hands</button>
+
+<div class="row">
+    <div class="col-8">
+
+        <canvas id="gameCanvas" width=@gameLogic.Width height=@gameLogic.Height></canvas>
+
+    </div>
+
+    <div class="col-4">
+
+        <div class="card border-secondary p-3 m-2">
+            <div class="card-title">
+                <h3> Object's positions </h3>
+            </div>
+
+            <p>Bacteria</p>
+            <ul>
+                @foreach (var bacteria in gameLogic.FullOffBacteria)
+                {
+                    <li> position: (x = @bacteria.PositionX, y = @bacteria.PositionY)</li>
+                }
+            </ul>
+
+            <hr />
+            <p>Medicines</p>
+            <ul>
+                @foreach (var medicine in gameLogic.Medicines)
+                {
+                    <li> position: (x = @medicine.PositionX, y = @medicine.PositionY)</li>
+                }
+            </ul>
+
+
+        </div>
+    </div>
+
+</div>
+
+
+@code {
+    private Timer? gameTimer;
+
+    protected override void OnInitialized()
+    {
+        gameTimer = new Timer(100);
+        gameTimer.Elapsed += async (sender, e) => await UpdateGame();
+        base.OnInitialized();
+    }
+
+    private void StartGame()
+    {
+        gameTimer.Start();
+    }
+
+    private void AddBacteria()
+    {
+        gameLogic.FullOffBacteria.Add(new Bacteria());
+    }
+
+    private void Shot()
+    {
+        gameLogic.Medicines.Add(new Medicine());
+    }
+
+    private void WashHands()
+    {
+        Soap soap = new Soap();
+    }
+
+    private void DirtyHands()
+    {
+        Dirty dirty = new Dirty();
+    }
+
+
+    private async Task UpdateGame()
+    {
+        gameLogic.Update();
+        await RenderGame();
+    }
+
+    private async Task RenderGame()
+    {
+        var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
+
+        await myscript.InvokeVoidAsync("drawGame", gameLogic.FullOffBacteria, gameLogic.Medicines);
+        await myscript.InvokeVoidAsync("drawObstacles", gameLogic.soap, gameLogic.dirty);
+    }
+
+}
