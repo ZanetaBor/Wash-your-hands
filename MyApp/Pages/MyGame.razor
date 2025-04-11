@@ -7,7 +7,6 @@
 
 @inject GameLogic gameLogic;
 
-
 <h3>Wash your hands</h3>
 
 <button class="btn-secondary m-2" @onclick="StartGame">Start Game</button>
@@ -18,7 +17,7 @@
 
 <button class="btn-secondary m-2" @onclick="WashHands" async>Wash your hands</button>
 
-<button class="btn-secondary m-2" @onclick="DirtyHands">Dirty hands</button>
+<button class="btn-secondary m-2" @onclick="DirtyHands">Dirty hands</button> 
 
 <div class="row">
     <div class="col-8">
@@ -37,7 +36,7 @@
 
             <p>Bacteria</p>
             <ul>
-                @foreach (var bacteria in gameLogic.FullOffBacteria)
+                @foreach (var bacteria in gameLogic.Entities.OfType<Bacteria>())
                 {
                     <li> position: (x = @bacteria.PositionX, y = @bacteria.PositionY)</li>
                 }
@@ -46,7 +45,7 @@
             <hr />
             <p>Medicines</p>
             <ul>
-                @foreach (var medicine in gameLogic.Medicines)
+                @foreach (var medicine in gameLogic.Entities.OfType<Medicine>())
                 {
                     <li> position: (x = @medicine.PositionX, y = @medicine.PositionY)</li>
                 }
@@ -76,38 +75,38 @@
 
     private void AddBacteria()
     {
-        gameLogic.FullOffBacteria.Add(new Bacteria());
+        gameLogic.CreateBacteria();
     }
 
     private void Shot()
     {
-        gameLogic.Medicines.Add(new Medicine());
+        gameLogic.CreateMedicine();
     }
 
     private async Task WashHands()
     {
-        gameLogic.CreateSoap();
-        await ShowSoap();
+        gameLogic.CreateObstacle<Soap>();
+        await ShowObstacle(gameLogic.Soap);
     }
 
     private async Task DirtyHands()
     {
-        Dirty dirty = new Dirty();
-
+        gameLogic.CreateObstacle<Dirty>();
+        await ShowObstacle(gameLogic.Dirty);
     }
 
-    private async Task ShowSoap()
+    private async Task ShowObstacle(Obstacle obstacle)
     {
-        while (true)
+        while (obstacle?.IsExist == true)
         {
-            await DrawSoap(); 
+            await DrawObstacle(obstacle);
             await Task.Delay(100); 
 
-            if (gameLogic.Soap?.IsExist != true)
+            if (obstacle?.IsExist != true)
                 break; 
         }
 
-        await ClearSoap(); 
+        await ClearObstacle(obstacle);
     }
 
 
@@ -122,24 +121,21 @@
         var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
 
 
-        await myscript.InvokeVoidAsync("drawGame", gameLogic.FullOffBacteria, gameLogic.Medicines);
-        //await myscript.InvokeVoidAsync("drawObstacles", gameLogic.soap, gameLogic.dirty);
+        await myscript.InvokeVoidAsync("drawGame", gameLogic.Entities.OfType<Bacteria>(), gameLogic.Entities.OfType<Medicine>());
     }
 
-    private async Task DrawSoap()
-    {
-        if (gameLogic.Soap?.IsExist == true)
-        {
-            var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
-
-            await myscript.InvokeVoidAsync("drawObstacles", gameLogic.Soap);
-        }
-    }
-
-    private async Task ClearSoap()
+    private async Task DrawObstacle(Obstacle obstacle)
     {
         var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
-        await myscript.InvokeVoidAsync("clearSoap");
+        var dto = gameLogic.ToDto(obstacle);
+        await myscript.InvokeVoidAsync("drawObstacles", dto);
+    }
+
+    private async Task ClearObstacle(Obstacle obstacle)
+    { 
+        var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
+        var dto = gameLogic.ToDto(obstacle);
+        await myscript.InvokeVoidAsync("clearObstacle", dto);
     }
 
 

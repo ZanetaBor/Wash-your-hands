@@ -1,70 +1,106 @@
 ﻿
+using Microsoft.JSInterop;
 using Microsoft.Web.Services3;
+using MyApp.Data.Dto;
 
 namespace MyApp.Data
 {
     public class GameLogic
     {
-        public List<Bacteria> FullOffBacteria { get; set; }=new List<Bacteria>();
-
-        public List<Medicine> Medicines { get; set; } = new List<Medicine>();
-
         public Soap Soap { get; private set; }
-    
-        public Dirty dirty = new Dirty();  
+
+        public Dirty Dirty { get; private set; }
 
         public int Width { get; set; } = 800;
 
         public int Height { get; set; } = 600;
 
-        public void CreateSoap()
+        // Entities with all GameObject
+        public List<GameObject> Entities { get; set; } = new();
+
+
+        // Method dynamically creates an obstacle of type T.
+        public void CreateObstacle<T>() where T : Obstacle, new()
         {
-            Soap = new Soap();
-            Soap.Move();
+            T obstacle = new T();
+            obstacle.Move();
+
+            Entities.Add(obstacle);
+
+            if (obstacle is Soap soap)
+                Soap = soap;
+
+            if (obstacle is Dirty dirty)
+                Dirty = dirty;
+        }
+
+        public ObstacleDto ToDto(Obstacle obstacle)
+        {
+            return new ObstacleDto
+            {
+                PositionX = obstacle.PositionX,
+                PositionY = obstacle.PositionY,
+                Type = obstacle.GetType().Name.ToLower()
+            };
         }
 
 
+        public void CreateBacteria()
+        {
+            var bacteria = new Bacteria();
+            Entities.Add(bacteria);
+        }
+
+        public void CreateMedicine()
+        {
+            var medicine = new Medicine();
+            Entities.Add(medicine);
+        }
+
         public void Update()
         {
-            foreach (Bacteria bacteria in FullOffBacteria)
+            foreach (var entity in Entities.ToList())
             {
-                bacteria.Move();
+                entity.Move();
+                // is my obstacle should still exist? If not - remove item
+                if (entity is Obstacle o && !o.IsExist)
+                    Entities.Remove(entity);
+
+                // remove obstacle from js
+                //if (entity is Soap soap && !soap.IsExist)
+                //{
+                //    JSRuntime.InvokeVoidAsync("clearSoap"); 
+                //}
             }
-
-            foreach (Medicine medicine in Medicines)
-            {
-                medicine.Move();
-            }
-
-            dirty.Move();   
-
             DestroyItems();
+
         }
 
         private void DestroyItems()
         {
             int threshold = 5;
 
-            foreach (var e1 in FullOffBacteria)
+            var bacteriaList = Entities.OfType<Bacteria>().ToList();
+            var medicineList = Entities.OfType<Medicine>().ToList();
+
+            foreach (var bacteria in bacteriaList)
             {
-                var match = Medicines.FirstOrDefault(e2 =>
-                Math.Abs(e1.PositionX-e2.PositionX)<=threshold &&
-                Math.Abs(e1.PositionY - e2.PositionY) <= threshold
+                var match = medicineList.FirstOrDefault(m =>
+                    Math.Abs(bacteria.PositionX - m.PositionX) <= threshold &&
+                    Math.Abs(bacteria.PositionY - m.PositionY) <= threshold
                 );
 
-                if(match != null)
+                if (match != null)
                 {
-                    e1.Health = 0;
+                    bacteria.Health = 0;
                 }
-
             }
 
-            FullOffBacteria.RemoveAll(e => e.Health == 0);
             // znikniecie bakterii/lekow po przekroczeniu wysokosci
-            FullOffBacteria.RemoveAll(e => e.PositionY > Height);
-
-            Medicines.RemoveAll(e => e.PositionY < 0);
-
+            Entities.RemoveAll(e =>
+                (e is Bacteria b && (b.Health == 0 || b.PositionY > Height)) ||
+                (e is Medicine m && m.PositionY < 0)
+                );
         }
     }
 }

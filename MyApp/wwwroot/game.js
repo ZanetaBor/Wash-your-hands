@@ -1,38 +1,67 @@
-﻿export function drawGame(fullOffBacteria, medicines) {
+﻿
+const previousPositions = {
+    bacteria: [],
+    medicines: []
+};
+
+
+export function drawGame(fullOffBacteria, medicines) {
     const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
 
-    const ctx = canvas.getContext('2d')
+    // clear old position of bacteria
+    previousPositions.bacteria.forEach(prev => {
+        ctx.clearRect(prev.positionX, prev.positionY, 20, 20);
+    });
+    // clear old position of medicine
+    previousPositions.medicines.forEach(prev => {
+        ctx.clearRect(prev.positionX, prev.positionY, 5, 5);
+    });
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    // draw new position of list
     fullOffBacteria.forEach(bacteria => {
         ctx.fillStyle = 'red';
         ctx.fillRect(bacteria.positionX, bacteria.positionY, 20, 20);
-    })
+    });
 
     medicines.forEach(medicine => {
         ctx.fillStyle = 'green';
         ctx.fillRect(medicine.positionX, medicine.positionY, 5, 5);
-    })
+    });
+
+    // future position
+    previousPositions.bacteria = fullOffBacteria.map(b => ({ positionX: b.positionX, positionY: b.positionY }));
+    previousPositions.medicines = medicines.map(m => ({ positionX: m.positionX, positionY: m.positionY }));
 }
 
-export function drawObstacles(soap) { 
-    const canvas = document.getElementById('backgroundCanvas');
+
+
+export function drawObstacles(obstacle) { 
+    const canvas = document.getElementById('mainCanvas');
     const ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'gold';
-    ctx.fillRect(soap.positionX, soap.positionY, 50, 50);
-   
+    if (!obstacle) return;
 
-       // ctx.fillStyle = 'grey';
-      //  ctx.fillRect(dirty.positionX, dirty.positionY, 40, 40);
+    if (obstacle.type === "soap") {
+        ctx.fillStyle = 'gold';
+        ctx.fillRect(obstacle.positionX, obstacle.positionY, 50, 50);
+    } else if (obstacle.type === 'dirty') { 
+        ctx.fillStyle = 'grey';
+        ctx.fillRect(obstacle.positionX, obstacle.positionY, 40, 40);
+    }
 }
 
-export function clearSoap() {
-    const canvas = document.getElementById('backgroundCanvas');
+export function clearObstacle(obstacle) {
+    const canvas = document.getElementById('mainCanvas');
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!obstacle) return;
+
+    if (obstacle.type === "soap") {
+        ctx.clearRect(obstacle.positionX, obstacle.positionY, 50, 50);
+    } else if (obstacle.type === 'dirty') {
+        ctx.clearRect(obstacle.positionX, obstacle.positionY, 40, 40);
+    }
 }
 
 
