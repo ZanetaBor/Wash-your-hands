@@ -8,7 +8,7 @@
 @inject GameLogic gameLogic;
 
 
-<h3>MyGame</h3>
+<h3>Wash your hands</h3>
 
 <button class="btn-secondary m-2" @onclick="StartGame">Start Game</button>
 
@@ -16,14 +16,15 @@
 
 <button class="btn-secondary m-2" @onclick="Shot">Destruction of bacteria</button>
 
-<button class="btn-secondary m-2" @onclick="WashHands">Wash your hands</button>
+<button class="btn-secondary m-2" @onclick="WashHands" async>Wash your hands</button>
 
 <button class="btn-secondary m-2" @onclick="DirtyHands">Dirty hands</button>
 
 <div class="row">
     <div class="col-8">
 
-        <canvas id="gameCanvas" width=@gameLogic.Width height=@gameLogic.Height></canvas>
+        <canvas id="backgroundCanvas" width=@gameLogic.Width height=@gameLogic.Height></canvas>
+        <canvas id="mainCanvas" width=@gameLogic.Width height=@gameLogic.Height></canvas>
 
     </div>
 
@@ -83,14 +84,30 @@
         gameLogic.Medicines.Add(new Medicine());
     }
 
-    private void WashHands()
+    private async Task WashHands()
     {
-        Soap soap = new Soap();
+        gameLogic.CreateSoap();
+        await ShowSoap();
     }
 
-    private void DirtyHands()
+    private async Task DirtyHands()
     {
         Dirty dirty = new Dirty();
+
+    }
+
+    private async Task ShowSoap()
+    {
+        while (true)
+        {
+            await DrawSoap(); 
+            await Task.Delay(100); 
+
+            if (gameLogic.Soap?.IsExist != true)
+                break; 
+        }
+
+        await ClearSoap(); 
     }
 
 
@@ -104,8 +121,28 @@
     {
         var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
 
+
         await myscript.InvokeVoidAsync("drawGame", gameLogic.FullOffBacteria, gameLogic.Medicines);
-        await myscript.InvokeVoidAsync("drawObstacles", gameLogic.soap, gameLogic.dirty);
+        //await myscript.InvokeVoidAsync("drawObstacles", gameLogic.soap, gameLogic.dirty);
     }
+
+    private async Task DrawSoap()
+    {
+        if (gameLogic.Soap?.IsExist == true)
+        {
+            var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
+
+            await myscript.InvokeVoidAsync("drawObstacles", gameLogic.Soap);
+        }
+    }
+
+    private async Task ClearSoap()
+    {
+        var myscript = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./game.js");
+        await myscript.InvokeVoidAsync("clearSoap");
+    }
+
+
+
 
 }

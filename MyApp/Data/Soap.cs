@@ -2,16 +2,29 @@
 {
     public class Soap : Obstacle
     {
-        public Soap() 
+        public Soap()
         {
             Random rnd = new Random();
             PositionX = rnd.Next(0, 800);
-            PositionY = rnd.Next(0, 800);
-        }
-        public override void Move()
-        {
+            PositionY = rnd.Next(0, 600);
             IsExist = true;
             TimeExist = 20f;
+        }
+
+        public override void Move()
+        {
+            _ = RunAsync(); 
+        }
+
+        private async Task RunAsync()
+        {
+            while (TimeExist > 0)
+            {
+                await Task.Delay(100);
+                TimeExist -= 0.1f;
+            }
+
+            IsExist = false;
         }
     }
 }

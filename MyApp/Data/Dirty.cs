@@ -6,7 +6,7 @@
         {       
             Random rnd = new Random();
             PositionX = rnd.Next(0, 800);
-            PositionY = rnd.Next(0, 800);
+            PositionY = rnd.Next(0, 600);
         }
         public override void Move()
         {

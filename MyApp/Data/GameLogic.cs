@@ -9,12 +9,20 @@ namespace MyApp.Data
 
         public List<Medicine> Medicines { get; set; } = new List<Medicine>();
 
-        public Soap soap  = new Soap();
+        public Soap Soap { get; private set; }
+    
         public Dirty dirty = new Dirty();  
 
         public int Width { get; set; } = 800;
 
         public int Height { get; set; } = 600;
+
+        public void CreateSoap()
+        {
+            Soap = new Soap();
+            Soap.Move();
+        }
+
 
         public void Update()
         {
@@ -28,7 +36,6 @@ namespace MyApp.Data
                 medicine.Move();
             }
 
-            soap.Move();
             dirty.Move();   
 
             DestroyItems();
@@ -53,7 +60,7 @@ namespace MyApp.Data
             }
 
             FullOffBacteria.RemoveAll(e => e.Health == 0);
-
+            // znikniecie bakterii/lekow po przekroczeniu wysokosci
             FullOffBacteria.RemoveAll(e => e.PositionY > Height);
 
             Medicines.RemoveAll(e => e.PositionY < 0);

@@ -1,5 +1,5 @@
 ﻿export function drawGame(fullOffBacteria, medicines) {
-    const canvas = document.getElementById('gameCanvas');
+    const canvas = document.getElementById('mainCanvas');
 
     const ctx = canvas.getContext('2d')
 
@@ -16,15 +16,24 @@
     })
 }
 
-export function drawObstacles(soap, dirty) { 
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d')
+export function drawObstacles(soap) { 
+    const canvas = document.getElementById('backgroundCanvas');
+    const ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        //ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'gold';
+    ctx.fillRect(soap.positionX, soap.positionY, 50, 50);
+   
 
-        ctx.fillStyle = 'gold';
-        ctx.fillRect(soap.positionX, soap.positionY, 50, 50);
-
-        ctx.fillStyle = 'grey';
-        ctx.fillRect(dirty.positionX, dirty.positionY, 40, 40);
+       // ctx.fillStyle = 'grey';
+      //  ctx.fillRect(dirty.positionX, dirty.positionY, 40, 40);
 }
+
+export function clearSoap() {
+    const canvas = document.getElementById('backgroundCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+
