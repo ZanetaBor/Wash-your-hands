@@ -1,18 +1,22 @@
 ﻿namespace MyApp.Data
 {
-    public abstract class Achievement
+    public class Achievement
     {
-        public string SoundAchievement { get; protected set; }
-        public string ColorAchievement { get; protected set; }
-        public int ValueAchievement { get; protected set; }
-
-        protected abstract void PlaySound();
+        public string Name { get; set; }
+        public string Color { get; set; }
+        public int Points { get; set; }
+        public string Sound { get; set; } 
+        public AchievementType Type { get; set; }
 
         public void Trigger()
         {
-            PlaySound();
-            // In the futore: add color, music  changeand so on.
-            Console.WriteLine($"Achievement triggered! +{ValueAchievement} points.");
+            PlaySound();           
+        }
+
+        private void PlaySound()
+        {
+            Console.WriteLine($"🔊 Playing sound: {Sound}");
+            // albo JSInterop w Blazorze do uruchomienia audio w przeglądarce
         }
     }
 }

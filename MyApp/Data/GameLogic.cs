@@ -140,5 +140,23 @@ namespace MyApp.Data
                 Console.WriteLine("Dirty is null or not existing.");
             }
         }
+
+        public List<Achievement> Achievements { get; set; } = new();
+
+        public void CreateAchievement(string name, int points, string color, string sound, AchievementType type)
+        {
+            var achievement = new Achievement
+            {
+                Name = name,
+                Points = points,
+                Color = color,
+                Sound = sound,
+                Type = type
+            };
+
+            Achievements.Add(achievement);
+            achievement.Trigger(); 
+        }
+
     }
 }
