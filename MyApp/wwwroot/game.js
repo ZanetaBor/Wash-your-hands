@@ -43,11 +43,11 @@ export function drawObstacles(obstacle) {
     if (!obstacle) return;
 
     if (obstacle.type === "soap") {
-        ctx.fillStyle = 'gold';
-        ctx.fillRect(obstacle.positionX, obstacle.positionY, 50, 50);
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(obstacle.positionX, obstacle.positionY, 60, 60);
     } else if (obstacle.type === 'dirty') { 
         ctx.fillStyle = 'grey';
-        ctx.fillRect(obstacle.positionX, obstacle.positionY, 40, 40);
+        ctx.fillRect(obstacle.positionX, obstacle.positionY, 60, 60);
     }
 }
 
@@ -58,9 +58,9 @@ export function clearObstacle(obstacle) {
     if (!obstacle) return;
 
     if (obstacle.type === "soap") {
-        ctx.clearRect(obstacle.positionX, obstacle.positionY, 50, 50);
+        ctx.clearRect(obstacle.positionX, obstacle.positionY, 60, 60);
     } else if (obstacle.type === 'dirty') {
-        ctx.clearRect(obstacle.positionX, obstacle.positionY, 40, 40);
+        ctx.clearRect(obstacle.positionX, obstacle.positionY, 60, 60);
     }
 }
 

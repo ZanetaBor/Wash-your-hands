@@ -62,23 +62,16 @@ namespace MyApp.Data
             foreach (var entity in Entities.ToList())
             {
                 entity.Move();
-                // is my obstacle should still exist? If not - remove item
                 if (entity is Obstacle o && !o.IsExist)
                     Entities.Remove(entity);
-
-                // remove obstacle from js
-                //if (entity is Soap soap && !soap.IsExist)
-                //{
-                //    JSRuntime.InvokeVoidAsync("clearSoap"); 
-                //}
             }
             DestroyItems();
-
+            BacteriaReplicating();
         }
 
         private void DestroyItems()
         {
-            int threshold = 5;
+            int threshold = 60;
 
             var bacteriaList = Entities.OfType<Bacteria>().ToList();
             var medicineList = Entities.OfType<Medicine>().ToList();
@@ -96,11 +89,56 @@ namespace MyApp.Data
                 }
             }
 
+            if (Soap != null && Soap.IsExist)
+            {
+                Console.WriteLine($"Soap position: {Soap.PositionX}, {Soap.PositionY}");
+                foreach (var bacteria in bacteriaList)
+                {
+                    Console.WriteLine($"Checking bacteria at: {bacteria.PositionX}, {bacteria.PositionY}");
+                    if (Math.Abs(bacteria.PositionX - Soap.PositionX) <= threshold &&
+                        Math.Abs(bacteria.PositionY - Soap.PositionY) <= threshold)
+                    {
+                        Console.WriteLine("Bacteria touched soap! Setting health to 0.");
+                        bacteria.Health = 0;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Soap is null or not existing.");
+            }
+
+
             // znikniecie bakterii/lekow po przekroczeniu wysokosci
             Entities.RemoveAll(e =>
                 (e is Bacteria b && (b.Health == 0 || b.PositionY > Height)) ||
                 (e is Medicine m && m.PositionY < 0)
                 );
+        }
+
+        private void BacteriaReplicating()
+        {
+            int threshold = 60;
+
+            var bacteriaList = Entities.OfType<Bacteria>().ToList();
+            if (Dirty != null && Dirty.IsExist)
+            {
+                Console.WriteLine($"Dirty position: {Dirty.PositionX}, {Dirty.PositionY}");
+                foreach (var bacteria in bacteriaList)
+                {
+                    Console.WriteLine($"Checking bacteria at: {bacteria.PositionX}, {bacteria.PositionY}");
+                    if (Math.Abs(bacteria.PositionX - Dirty.PositionX) <= threshold &&
+                        Math.Abs(bacteria.PositionY - Dirty.PositionY) <= threshold)
+                    {
+                        Console.WriteLine("Bacteria touched dirty! Setting health to 80.");
+                        bacteria.Health = 80;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Dirty is null or not existing.");
+            }
         }
     }
 }
