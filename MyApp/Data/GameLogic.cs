@@ -14,6 +14,7 @@ namespace MyApp.Data
         public int Width { get; set; } = 800;
 
         public int Height { get; set; } = 600;
+        public int CountOfBacteria { get; set; } = 0;
 
         // Entities with all GameObject
         public List<GameObject> Entities { get; set; } = new();
@@ -49,6 +50,7 @@ namespace MyApp.Data
         {
             var bacteria = new Bacteria();
             Entities.Add(bacteria);
+            CountOfBacteria ++;
         }
 
         public void CreateMedicine()
@@ -72,7 +74,7 @@ namespace MyApp.Data
         private void DestroyItems()
         {
             int threshold = 60;
-
+            Console.WriteLine(CountOfBacteria);
             var bacteriaList = Entities.OfType<Bacteria>().ToList();
             var medicineList = Entities.OfType<Medicine>().ToList();
 
@@ -86,6 +88,7 @@ namespace MyApp.Data
                 if (match != null)
                 {
                     bacteria.Health = 0;
+                    CountOfBacteria --;
                 }
             }
 
@@ -100,12 +103,23 @@ namespace MyApp.Data
                     {
                         Console.WriteLine("Bacteria touched soap! Setting health to 0.");
                         bacteria.Health = 0;
+                        CountOfBacteria--;
                     }
                 }
             }
             else
             {
                 Console.WriteLine("Soap is null or not existing.");
+            }
+
+            if (CountOfBacteria < 10)
+            {
+                CreateAchievement("Bacteria Buster", 50, "green", "success.mp3", AchievementType.Positive);
+            }
+
+            if (CountOfBacteria > 100)
+            {
+                CreateAchievement("Bacteria Invasion", -50, "red", "fail.mp3", AchievementType.Negative);
             }
 
 
@@ -141,8 +155,9 @@ namespace MyApp.Data
             }
         }
 
+        // Achievements list
         public List<Achievement> Achievements { get; set; } = new();
-
+           // Achievements list
         public void CreateAchievement(string name, int points, string color, string sound, AchievementType type)
         {
             var achievement = new Achievement
@@ -150,7 +165,7 @@ namespace MyApp.Data
                 Name = name,
                 Points = points,
                 Color = color,
-                Sound = sound,
+                Sound = sound, 
                 Type = type
             };
 
