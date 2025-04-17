@@ -1,10 +1,10 @@
-﻿
+﻿// remember game object position
 const previousPositions = {
     bacteria: [],
-    medicines: []
+    medicine: []
 };
 
-
+//draw game object
 export function drawGame(fullOffBacteria, medicines) {
     const canvas = document.getElementById('mainCanvas');
     const ctx = canvas.getContext('2d');
@@ -14,54 +14,60 @@ export function drawGame(fullOffBacteria, medicines) {
         ctx.clearRect(prev.positionX, prev.positionY, 20, 20);
     });
     // clear old position of medicine
-    previousPositions.medicines.forEach(prev => {
-        ctx.clearRect(prev.positionX, prev.positionY, 5, 5);
+    previousPositions.medicine.forEach(prev => {
+        ctx.clearRect(prev.positionX, prev.positionY, 20, 20);
     });
 
     // draw new position of list
     fullOffBacteria.forEach(bacteria => {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(bacteria.positionX, bacteria.positionY, 20, 20);
+        const bacteriaImg = new Image();
+        bacteriaImg.src = '/images/bacteria.png';
+        bacteriaImg.onload = () => {
+            ctx.drawImage(bacteriaImg, bacteria.positionX, bacteria.positionY, 20, 20);
+        }
     });
-
+    
     medicines.forEach(medicine => {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(medicine.positionX, medicine.positionY, 5, 5);
+        const medicineImg = new Image();
+        medicineImg.src = '/images/medicine.png';
+        medicineImg.onload = () => {
+            ctx.drawImage(medicineImg, medicine.positionX, medicine.positionY, 20, 20);
+        }
     });
 
     // future position
     previousPositions.bacteria = fullOffBacteria.map(b => ({ positionX: b.positionX, positionY: b.positionY }));
-    previousPositions.medicines = medicines.map(m => ({ positionX: m.positionX, positionY: m.positionY }));
+    previousPositions.medicine = medicines.map(m => ({ positionX: m.positionX, positionY: m.positionY }));
 }
 
-
-
-export function drawObstacles(obstacle) { 
+// draw obstacles
+export function drawObstacles(obstacle) {
     const canvas = document.getElementById('mainCanvas');
     const ctx = canvas.getContext('2d')
 
     if (!obstacle) return;
 
     if (obstacle.type === "soap") {
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(obstacle.positionX, obstacle.positionY, 60, 60);
-    } else if (obstacle.type === 'dirty') { 
-        ctx.fillStyle = 'grey';
-        ctx.fillRect(obstacle.positionX, obstacle.positionY, 60, 60);
+        const soapImg = new Image();
+        soapImg.src = '/images/soap.png';
+        soapImg.onload = () => {
+            ctx.drawImage(soapImg, obstacle.positionX, obstacle.positionY, 60, 60);
+        }
+    }
+    else if (obstacle.type === 'dirty') {
+        const dirtyImg = new Image();
+        dirtyImg.src = '/images/dirty.png';
+        dirtyImg.onload = () => {
+            ctx.drawImage(dirtyImg, obstacle.positionX, obstacle.positionY, 60, 60);
+        }
     }
 }
-
 export function clearObstacle(obstacle) {
     const canvas = document.getElementById('mainCanvas');
     const ctx = canvas.getContext('2d');
 
     if (!obstacle) return;
-
-    if (obstacle.type === "soap") {
-        ctx.clearRect(obstacle.positionX, obstacle.positionY, 60, 60);
-    } else if (obstacle.type === 'dirty') {
-        ctx.clearRect(obstacle.positionX, obstacle.positionY, 60, 60);
-    }
+    ctx.clearRect(obstacle.positionX, obstacle.positionY, 60, 60); 
 }
 
 
